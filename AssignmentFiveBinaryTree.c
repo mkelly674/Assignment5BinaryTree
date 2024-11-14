@@ -16,6 +16,16 @@ struct Node{
     Node * Right;
 };
 
+
+//prototypes
+Node * search(Node*root, char*name);
+Node * createNode(int fine, char * name);
+void insertion(Node * root, int fine, char * name);
+void add(Node * root, int fine, char * name);
+void deduct(Node * root, int deduct, char * name);
+int average(Node * root);
+int height_balance(Node * root);
+
 Node * createNode(int fine, char * name){
     Node * temp;
     temp->fine = fine;
@@ -26,26 +36,65 @@ Node * createNode(int fine, char * name){
 }
 
 void insertion(Node * root, int fine, char * name){
+    //create the node
     if(root == NULL){
         root = createNode(fine, name);
         return;
     }
+
+    //see if the name is in the tree
+    Node * temp = search(root, name);
+
+    if(temp != NULL)
+        return;
+    
+
+    if(strcmp(root->name, name)> 0)
+        insertion(root->Left, fine, name);
+    
+    if(strcmp(root->name, name)< 0)
+        insertion(root->Right, fine, name);
     
 }
 
-int add(Node * root, int fine, char * name){
+void add(Node * root, int fine, char * name){
+    if(search(root, name) == NULL){
+        insertion(root, fine, name);
+    }
+    else{
+        Node * res = search(root, name);
+        res->fine = res->fine + fine;
+    }
 
 }
 
-int deduc(Node * root, int deduct, char * name){
+void deduct(Node * root, int deduct, char * name){
 
 }
 
-Node * root(Node * root, char * name){
+Node *search(Node * root, char * name){
+    if(root == NULL){
+        return root;
+    }
+    Node * res = root;
 
+    if(strcmp(res->name, name) > 0)
+        res = search(res->Left, name);
+    
+    if(strcmp(res->name, name) < 0)
+        res = search(res->Right, name);
+        
+    
+    return res;
 }
 
 int average(Node * root){
+    int res = 0;
+
+    return res;
+}
+
+int height_balance(Node * root){
 
 }
 
@@ -80,7 +129,7 @@ int main(){
             //get the name to be added
             scanf("%s", &name);
 
-            root->fine = add(root, fin, name);
+            add(root, fin, name);
         }
 
         if(strcmp(command, "deduct") == 0){
@@ -90,7 +139,7 @@ int main(){
             //get the name
             scanf("%s", &name);
 
-
+            deduct(root, deduc, name);
         }
 
         if(strcmp(command, "search") == 0){
