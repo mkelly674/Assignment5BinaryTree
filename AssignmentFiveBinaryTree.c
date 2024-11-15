@@ -216,8 +216,23 @@ void delete(Node * root, Node * del, char * name){
             del = NULL;
             par->Left = saveNode;
         }
+    } 
+
+    //set the parent to the del
+    if(strcmp(par->name, del->name) < 0){
+        saveNode = minVal(del);
+        free(del);
+        del = NULL;
+        par->Right = saveNode;
     }
-    
+
+    if(strcmp(par->name, del->name) > 0){
+        saveNode = minVal(del);
+        free(del);
+        del = NULL;
+        par->Left = saveNode;
+    }
+
 }
 
 void height_balance(Node * root){
@@ -368,7 +383,7 @@ int main(){
     char command[15];
 
     //get the Node
-    Node * root;
+    Node * root = NULL;
 
     //get the fine
     int fin = 0;
@@ -377,7 +392,7 @@ int main(){
     int deduc = 0;
 
     //get the name
-    char * name = (char *) malloc(sizeof(char)*24);
+    char name[24];
 
     for(int i = 0; i < numcom; i++){
 
@@ -388,7 +403,11 @@ int main(){
             scanf("%d", &fin);
 
             //get the name to be added
-            scanf("%s", name);
+            scanf("%s", &name);
+
+            if(root == NULL){
+                root = createNode(fin, name);
+            }
 
             add(root, fin, name);
         }
