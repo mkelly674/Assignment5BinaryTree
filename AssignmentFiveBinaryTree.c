@@ -28,12 +28,12 @@ Node * minVal(Node* root);
 void insertion(Node * root, int fine, char * name);
 void add(Node * root, int fine, char * name);
 void deduct(Node * root, int deduct, char * name);
-void delete(Node * root, Node * del);
+void delete(Node * root, Node * del, char * name);
 
 //prototypes for return functions
-int average(Node * root);
+int average(Node * root, int count);
 int height_balance(Node * root);
-int calc_below(char * name);
+int calc_below(Node * root,char * name);
 int isLeaf(Node * root);
 int rightChildOnly(Node * root);
 int leftChildOnly(Node * root);
@@ -144,36 +144,88 @@ void deduct(Node * root, int deduct, char * name){
     res->fine = res->fine - deduct;
 
     if(res->fine <= 0)
-    delete(root, res);
+    delete(root, res, name);
 }
 
-void delete(Node * root, Node * del){
+void delete(Node * root, Node * del, char * name){
     if(root == NULL)
     return;
-
+    Node * saveNode;
     Node * par = parent(root, del);
 
     //if root is leaf
-    if(isLeaf(root) == 1){
+    if(isLeaf(del) == 1){
         //simple free
-        free(root);
-        root = NULL;
+        free(del);
+        del = NULL;  
     }
 
     //if root has only left child
-    if(leftChildOnly(root) == 1){
-        
+    if(leftChildOnly(del) == 1){
+        //this is when deleting root with one child
+        if(par  == NULL){
+          root = del->Left;
+          free(del);  
+        }
+
+        //if the deletion is to the Right of the parent Node
+        if(strcmp(par->name, del->name) < 0){
+            saveNode = del->Left;
+            free(del);
+            del = NULL;
+            par->Right = saveNode;
+        }
+
+        //if the deletion is to the Left of the parent Node
+        if(strcmp(par->name, del->name) > 0){
+            saveNode = del->Left;
+            free(del);
+            del = NULL;
+            par->Left = saveNode;
+        }
     }
 
     //if root has only right child
     if(rightChildOnly(root) == 1){
+        //this is when deleting root with one child
+        if(par  == NULL){
+          root = del->Right;
+          free(del);  
+        }
 
+        //if the deletion is to the Right of the parent Node
+        if(strcmp(par->name, del->name) < 0){
+            saveNode = del->Right;
+            free(del);
+            del = NULL;
+            par->Right = saveNode;
+        }
+
+        //if the deletion is to the Left of the parent Node
+        if(strcmp(par->name, del->name) > 0){
+            saveNode = del->Right;
+            free(del);
+            del = NULL;
+            par->Left = saveNode;
+        }
     }
+    
 }
 
 
-int average(Node * root){
-    int res = 0;
+int average(Node * root, int count){
+
+    int res = root->fine;
+    //increase the amount to get the total number
+    count++;
+
+    //traverse to the right
+    while (root != NULL){
+        return res + average(root->Right, count);
+    }
+    
+    while(root != NULL)
+        return res + average(root->Left, count);
 
     return res;
 }
@@ -182,7 +234,7 @@ int height_balance(Node * root){
 
 }
 
-int calc_below(char * name){
+int calc_below(Node  * root, char * name){
 
 }
 
@@ -256,7 +308,8 @@ int main(){
             //get the average
             int ave = 0;
 
-            ave = average(root);
+            int count = 0;
+            ave = average(root, count);
 
             printf("%d \n", ave);
         }
@@ -274,7 +327,7 @@ int main(){
             //get the total before the specificed target
             int tot = 0;
 
-            tot = calc_below(name);
+            tot = calc_below(root, name);
 
             printf("%d \n", tot);
         }
