@@ -29,14 +29,17 @@ void insertion(Node * root, int fine, char * name);
 void add(Node * root, int fine, char * name);
 void deduct(Node * root, int deduct, char * name);
 void delete(Node * root, Node * del, char * name);
+void height_balance(Node * root);
 
 //prototypes for return functions
-int average(Node * root, int count);
-int height_balance(Node * root);
+int average(Node * root);
 int calc_below(Node * root,char * name);
 int isLeaf(Node * root);
 int rightChildOnly(Node * root);
 int leftChildOnly(Node * root);
+int getHeight(Node * root);
+int sum(Node * root);
+int count(Node * root, int count);
 
 Node *search(Node * root, char * name){
     if(root == NULL){
@@ -126,9 +129,14 @@ void insertion(Node * root, int fine, char * name){
 }
 
 void add(Node * root, int fine, char * name){
+    if(root == NULL){
+        insertion(root, fine, name);
+    }
+
     if(search(root, name) == NULL){
         insertion(root, fine, name);
     }
+
     else{
         Node * res = search(root, name);
         res->fine = res->fine + fine;
@@ -212,30 +220,128 @@ void delete(Node * root, Node * del, char * name){
     
 }
 
+void height_balance(Node * root){
+    //get the left and right heights of subtree
+    int rHei = 0;
+    int lHei = 0;
 
-int average(Node * root, int count){
+    //get the balance
+    int balance = 0;
 
+    //get the heights
+    rHei = rHei + getHeight(root->Right);
+    lHei = lHei + getHeight(root->Left);
+
+    printf("left height = %d right height = %d", lHei, rHei);
+
+    balance = rHei - lHei;
+
+    if(balance <= 1 && balance >=-1)
+        printf("balanced \n");
+    
+
+    else
+        printf("not balanced \n");
+}
+int average(Node * root){
+    //get the sum and number of nodes in tree
+    int summed= 0;
+    int counted = 0;
+    double res = 0;
+
+    summed = summed + sum(root);
+
+    counted = count(root, counted);
+
+    res = summed/counted;
+    return res;
+}
+int sum(Node * root){
+    if(root == NULL){
+        return 0;
+    }
     int res = root->fine;
-    //increase the amount to get the total number
-    count++;
+    
 
     //traverse to the right
     while (root != NULL){
-        return res + average(root->Right, count);
+        return res + sum(root->Right);
     }
     
+    //traverse to the left
     while(root != NULL)
-        return res + average(root->Left, count);
+        return res + sum(root->Left);
 
     return res;
 }
 
-int height_balance(Node * root){
+int count(Node * root, int counted){
+    if(root == NULL)
+        return 0;
 
+    if(root->Left != NULL)
+        return count(root->Left, counted + 1);
+
+    if(root->Right != NULL)
+        return count(root->Right, counted + 1);
+
+    if(root->Left == NULL && root->Right == NULL)
+        return 1;
+}
+
+int getHeight(Node * root){
+    int hei = 0;
+
+    // empty list
+    if(root == NULL)
+        return hei - 1;
+
+    //get the leaf node
+    if(root->Right == NULL && root->Left == NULL)
+        return hei;
+    
+    //right child only
+    if(root->Right != NULL && root->Left == NULL){
+        hei++;
+        return hei + getHeight(root->Right);
+    }
+
+    //left child only
+    if(root->Left != NULL && root->Right == NULL){
+        hei++;
+        return hei + getHeight(root->Left);
+    }
+    
+    //when there are two children, get the height on both subtrees
+    int rHei = getHeight(root->Right);
+    int lHei = getHeight(root->Left);
+
+    //if left subtree is bigger
+    if(rHei < lHei)
+        return lHei;
+    
+    //if right subtree is bigger
+    if(rHei > lHei)
+        return rHei;
+    
+    return hei;
 }
 
 int calc_below(Node  * root, char * name){
+    if(root == NULL)
+        return 0;
+    //get the Node to stop at
+    Node * countNode = search(root, name);
+    
+    int res = root->fine;
 
+    if(countNode == NULL)
+        return 0;
+
+    if(strcmp(root->name, countNode->name) < 0)
+       return res + calc_below(root->Left, name);
+
+    return res;
 }
 
 int isLeaf(Node * root){
@@ -271,7 +377,7 @@ int main(){
     int deduc = 0;
 
     //get the name
-    char name[24];
+    char * name = (char *) malloc(sizeof(char)*24);
 
     for(int i = 0; i < numcom; i++){
 
@@ -282,7 +388,7 @@ int main(){
             scanf("%d", &fin);
 
             //get the name to be added
-            scanf("%s", &name);
+            scanf("%s", name);
 
             add(root, fin, name);
         }
@@ -292,14 +398,14 @@ int main(){
             scanf("%d", &deduc);
 
             //get the name
-            scanf("%s", &name);
+            scanf("%s", name);
 
             deduct(root, deduc, name);
         }
 
         if(strcmp(command, "search") == 0){
             //get the name
-            scanf("%s", &name);
+            scanf("%s", name);
 
             Node * temp = search(root, name);
         }
@@ -308,24 +414,21 @@ int main(){
             //get the average
             int ave = 0;
 
-            int count = 0;
-            ave = average(root, count);
+            ave = average(root);
 
             printf("%d \n", ave);
         }
 
         if(strcmp(command, "height_balance") == 0){
-            //get the height
-            int hei = 0;
 
-            hei = height_balance(root);
-
-            printf("%d \n", hei);
+            height_balance(root);
         }
 
         if(strcmp(command, "calc_below") == 0){
             //get the total before the specificed target
             int tot = 0;
+
+            scanf("%s", name);
 
             tot = calc_below(root, name);
 
