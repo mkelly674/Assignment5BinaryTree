@@ -59,6 +59,7 @@ Node *search(Node * root, char * name){
 
 Node * createNode(int fine, char * name){
     Node * temp;
+    temp = (Node *) malloc(sizeof(Node));
     temp->fine = fine;
     temp->name = name;
     temp->Left = NULL;
@@ -131,15 +132,21 @@ void insertion(Node * root, int fine, char * name){
 void add(Node * root, int fine, char * name){
     if(root == NULL){
         insertion(root, fine, name);
+        int hei = getHeight(root);
+        printf("%s %d %d \n", name, fine, hei);
     }
 
     if(search(root, name) == NULL){
         insertion(root, fine, name);
+        int hei = getHeight(root);
+        printf("%s %d %d \n", name, fine, hei);
     }
 
     else{
         Node * res = search(root, name);
         res->fine = res->fine + fine;
+        int hei = getHeight(root);
+        printf("%s %d %d \n", name, fine, hei);
     }
 
 }
@@ -151,8 +158,10 @@ void deduct(Node * root, int deduct, char * name){
     Node * res = search(root, name);
     res->fine = res->fine - deduct;
 
-    if(res->fine <= 0)
-    delete(root, res, name);
+    if(res->fine <= 0){
+        printf("%s removed \n");
+        delete(root, res, name);
+    }
 }
 
 void delete(Node * root, Node * del, char * name){
@@ -268,7 +277,9 @@ int average(Node * root){
 
     counted = count(root, counted);
 
+    //divid the sum with count to get average
     res = summed/counted;
+
     return res;
 }
 int sum(Node * root){
@@ -380,7 +391,7 @@ int main(){
     scanf("%d", &numcom);
 
     //get the command
-    char command[15];
+    char command[16];
 
     //get the Node
     Node * root = NULL;
@@ -410,6 +421,8 @@ int main(){
             }
 
             add(root, fin, name);
+
+            
         }
 
         if(strcmp(command, "deduct") == 0){
@@ -456,5 +469,7 @@ int main(){
 
     }
 
+    printf("%d", numcom);
+    
     return 0;
 }
