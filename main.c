@@ -155,6 +155,8 @@ Node * add(Node * root, Node * temp){
     else{
         Node * res = search(root, temp->name);
         res->fine = res->fine + temp->fine;
+        int hei = getHeight(root);
+        printf("%s %d %d \n", temp->name, res->fine, hei);
         return root;
     }
     
@@ -174,7 +176,7 @@ Node * deduct(Node * root, int deduct, char * name){\
     //if the person still has a fine
     if(res->fine > 0){
         int hei = getHeight(root);
-        printf("%s, %d, %d", res->name, res->fine, hei);
+        printf("%s %d %d \n", res->name, res->fine, hei);
     }
         
     
@@ -189,15 +191,15 @@ Node * deduct(Node * root, int deduct, char * name){\
 Node * delete(Node * root, Node * del, char * name){
     Node *delnode, *new_del_node, *save_node;
     Node *par;
-    char * saveName = (char *) malloc (sizeof(char)*25);
     delnode = search(root, name); // Get a pointer to the node to delete.
     par = parent(root, delnode); // Get the parent of this node.
+    char * saveName = (char *) malloc(sizeof(char)*25);
     // Take care of the case where the node to delete is a leaf node.
     if (isLeaf(delnode)) {// case 1
         // Deleting the only node in the tree.
         if (par == NULL) {
-            free(delnode->name);
-            free(delnode); // free the memory for the node.
+            free(root->name);
+            free(root); // free the memory for the node.
             return NULL;
         }
         // Deletes the node if it's a left child.
@@ -245,37 +247,38 @@ Node * delete(Node * root, Node * del, char * name){
     }
     // Takes care of the case where the deleted node only has a right child.
     if (rightChildOnly(delnode)) {
-    // Node to delete is the root node.
-    if (par == NULL) {
-        save_node = delnode->Right;
-        //need to free name and node
-        free(delnode->name);
-        free(delnode);
-        return save_node;
-    }
-    // Delete's the node if it is a left child.
-    if (strcmp(name, par->name) < 0) {
-        save_node = par->Left;
-        par->Left = par->Left->Right;
-        //need to free name and node
-        free(save_node->name);
-        free(save_node);
-    }
-    // Delete's the node if it is a right child.
-    else {
-        save_node = par->Right;
-        par->Right = par->Right->Right;
-        free(save_node->name);
-        free(save_node);
-    }
+        // Node to delete is the root node.
+        if (par == NULL) {
+            save_node = delnode->Right;
+            //need to free name and node
+            free(delnode->name);
+            free(delnode);
+            return save_node;
+        }
+        // Delete's the node if it is a left child.
+        if (strcmp(name, par->name) < 0) {
+            save_node = par->Left;
+            par->Left = par->Left->Right;
+            //need to free name and node
+            free(save_node->name);
+            free(save_node);
+        }
+        // Delete's the node if it is a right child.
+        else {
+            save_node = par->Right;
+            par->Right = par->Right->Right;
+            free(save_node->name);
+            free(save_node);
+        }
     return root;
     }
     //if your code reaches hear it means delnode has two children
     // Find the new physical node to delete.
-    new_del_node = minVal(delnode->Right);
-    free(delnode->name);
-    delnode->name = strdup(new_del_node->name);
-    delete(root, new_del_node, name); // Now, delete the proper value.
+    new_del_node = maxVal(delnode->Left);
+    saveName = new_del_node->name;
+    root = delete(root, new_del_node, saveName); // Now, delete the proper value.
+    // Restore the data to the original node to be deleted.
+    delnode->name = saveName;
     return root;
 }
 
@@ -444,7 +447,7 @@ int main(){
             //get the amount deducted
             scanf("%d", &deduc);
 
-            deduct(root, deduc, name);
+            root = deduct(root, deduc, name);
             
         }
 
@@ -458,7 +461,7 @@ int main(){
 
             else{
                 int hei = getHeight(temp);
-                printf("%s, %d, %d \n", name, temp->fine, hei);
+                printf("%s %d %d \n", name, temp->fine, hei);
             }
             
         }
@@ -485,15 +488,19 @@ int main(){
 
             scanf("%s", name);
 
+            Node * temp = search(root, name);
+
             tot = calc_below(root, name);
+
+            //if the name is in the tree, add it 
+            if(temp != NULL)
+                tot = tot + temp->fine;
 
             printf("%d \n", tot);
             
         }
 
     }
-
-    printf("%d", numcom);
     
     return 0;
 }
